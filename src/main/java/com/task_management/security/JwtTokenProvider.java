@@ -1,0 +1,86 @@
+package com.task_management.security;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.List;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.stereotype.Component;
+
+import com.task_management.config.JwtConfig;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ClaimsBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.Data;
+
+@Component
+@Data
+public class JwtTokenProvider {
+    private static final String AUTHORITIES_KEY = "roles";
+
+    @Autowired
+    private JwtConfig jwtConfig;
+
+    private SecretKey secretKey;
+
+    @PostConstruct
+    public void init() {
+        String secret = Base64.getEncoder().encodeToString(jwtConfig.getSecretKey().getBytes());
+        secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String createToken(Authentication authentication) {
+        String username = authentication.getName();
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        ClaimsBuilder claimsBuilder = Jwts.claims().subject(username);
+
+        if (!authorities.isEmpty()) {
+            String authoritiesCollector = authorities.stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.joining(","));
+
+            claimsBuilder.add(AUTHORITIES_KEY, authoritiesCollector);
+        }
+
+        Claims claims = claimsBuilder.build();
+        Date now = new Date();
+        Date expiresIn = new Date(now.getTime() + jwtConfig.getExpiresInMs());
+
+        return Jwts.builder().claims(claims)
+                .issuedAt(now).expiration(expiresIn)
+                .signWith(secretKey, Jwts.SIG.HS256)
+                .compact();
+    }
+
+    public Authentication getAuthentication(String token) {
+        Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+
+        Object authoritiesClaim = claims.get(AUTHORITIES_KEY);
+
+        List<GrantedAuthority> authorities = authoritiesClaim == null ? AuthorityUtils.NO_AUTHORITIES
+                : AuthorityUtils.commaSeparatedStringToAuthorityList(authoritiesClaim.toString());
+
+        User principal = new User(claims.getSubject(), "", authorities);
+
+        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+    }
+
+    public boolean validateToken(String token) {
+        Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+
+        return true;
+    }
+}
