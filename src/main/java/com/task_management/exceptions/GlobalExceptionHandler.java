@@ -38,6 +38,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<?> handleNotOwnerException(NotFoundException e) {
+        ErrorMessageDTO error = new ErrorMessageDTO();
+        error.setError(e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(NotOwnerException.class)
+    public ResponseEntity<?> handleNotOwnerException(NotOwnerException e) {
+        ErrorMessageDTO error = new ErrorMessageDTO();
+        error.setError(e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
     public GlobalExceptionHandler(MessageSource message) {
         this.messageSource = message;
     }
