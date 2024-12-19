@@ -19,12 +19,15 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import com.task_management.config.JwtConfig;
+import com.task_management.modules.user.UserEntity;
+import com.task_management.modules.user.UserRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ClaimsBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 
 @Component
@@ -34,6 +37,9 @@ public class JwtTokenService {
 
     @Autowired
     private JwtConfig jwtConfig;
+
+    @Autowired
+    UserRepository userRepo;
 
     private SecretKey secretKey;
 
@@ -89,12 +95,31 @@ public class JwtTokenService {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
 
-    public String extractUsername(String token){
+    public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public UserEntity getUser(HttpServletRequest req) {
+        String token = req.getHeader("Authorization");
+
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        String username = extractUsername(token);
+        UserEntity user = userRepo.findByUsername(username).get();
+
+        return user;
+    }
+
+    public Long getUserId(HttpServletRequest req) {
+        UserEntity user = getUser(req);
+
+        return user.getId();
     }
 }
