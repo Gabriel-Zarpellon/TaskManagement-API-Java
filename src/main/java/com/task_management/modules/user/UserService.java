@@ -15,8 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.task_management.exceptions.ExistingUserException;
+import com.task_management.modules.user.dtos.UserCreateDTO;
 import com.task_management.modules.user.dtos.UserReturnDTO;
 import com.task_management.security.JwtTokenService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class UserService {
@@ -35,7 +38,7 @@ public class UserService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public UserReturnDTO register(@RequestBody UserEntity payload) throws ExistingUserException {
+    public UserReturnDTO register(@RequestBody UserCreateDTO payload) throws ExistingUserException {
         Optional<UserEntity> existingUser = userRepo.findByUsername(payload.getUsername());
 
         if (existingUser.isPresent()) {
@@ -46,9 +49,9 @@ public class UserService {
                 .username(payload.getUsername())
                 .password(encoder.encode(payload.getPassword()))
                 .name(payload.getName())
-                .admin(payload.getAdmin());
+                .admin(payload.isAdmin());
 
-        if (payload.getAdmin()) {
+        if (payload.isAdmin()) {
             var role = Arrays.asList("ADMIN");
             var admin = builder.roles(role).build();
             var user = userRepo.save(admin);
@@ -80,5 +83,11 @@ public class UserService {
         List<UserEntity> users = userRepo.findAll();
 
         return Arrays.asList(modelMapper.map(users, UserReturnDTO[].class));
+    }
+
+    public UserReturnDTO getProfile(HttpServletRequest req) {
+        UserEntity user = jwtTokenService.getUser(req);
+
+        return modelMapper.map(user, UserReturnDTO.class);
     }
 }
