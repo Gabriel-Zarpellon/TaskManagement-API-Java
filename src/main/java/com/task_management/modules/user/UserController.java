@@ -1,9 +1,11 @@
 package com.task_management.modules.user;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +42,13 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<HashMap<String, String>> login(@RequestBody UserEntity payload) {
         var response = userService.login(payload);
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserReturnDTO>> read() {
+        List<UserReturnDTO> response = userService.read();
 
         return ResponseEntity.status(200).body(response);
     }
