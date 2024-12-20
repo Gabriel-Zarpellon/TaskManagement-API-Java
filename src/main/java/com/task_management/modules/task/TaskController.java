@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,6 +46,14 @@ public class TaskController {
     public ResponseEntity<TaskEntity> readOne(@PathVariable Long id, HttpServletRequest req)
             throws NotFoundException, NotOwnerException {
         TaskEntity response = taskService.readOne(id, req);
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<TaskEntity> update(@PathVariable Long id, HttpServletRequest req, @RequestBody TaskEntity payload)
+            throws NotFoundException, NotOwnerException {
+        TaskEntity response = taskService.update(id, req, payload);
 
         return ResponseEntity.status(200).body(response);
     }

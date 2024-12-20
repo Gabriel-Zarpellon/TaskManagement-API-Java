@@ -43,7 +43,10 @@ public class TaskService {
         UserEntity user = jwtTokenService.getUser(req);
 
         if (user.getAdmin()) {
-            return taskRepo.findAll();
+            if (status.isEmpty()) {
+                return taskRepo.findAll();
+            }
+            return taskRepo.findByStatus(status);
         }
 
         if (status.isEmpty()) {
@@ -63,33 +66,40 @@ public class TaskService {
     public TaskEntity readOne(Long id, HttpServletRequest req) throws NotFoundException, NotOwnerException {
         UserEntity user = jwtTokenService.getUser(req);
 
-        if (user.getAdmin()) {
-            return taskRepo.findById(id).orElseThrow(() -> new NotFoundException());
+        TaskEntity task = taskRepo.findById(id).orElseThrow(() -> new NotFoundException());
+        var ownerId = task.getUser().getId();
+
+        if (ownerId != user.getId() && !user.getAdmin()) {
+            throw new NotOwnerException();
         }
+        return task;
+    }
+
+    public TaskEntity update(Long id, HttpServletRequest req, TaskEntity payload)
+            throws NotFoundException, NotOwnerException {
+        UserEntity user = jwtTokenService.getUser(req);
 
         TaskEntity task = taskRepo.findById(id).orElseThrow(() -> new NotFoundException());
         var ownerId = task.getUser().getId();
 
-        if (ownerId != user.getId()) {
+        if (ownerId != user.getId() && !user.getAdmin()) {
             throw new NotOwnerException();
         }
+
+        task.setStatus(payload.getStatus() == null ? task.getStatus() : payload.getStatus());
+        task.setTitle(payload.getTitle() == null ? task.getTitle() : payload.getTitle());
+        task.setDescription(payload.getDescription() == null ? task.getDescription() : payload.getDescription());
+
         return task;
     }
 
     public void delete(Long id, HttpServletRequest req) throws NotFoundException, NotOwnerException {
         UserEntity user = jwtTokenService.getUser(req);
 
-        if (user.getAdmin()) {
-            taskRepo.findById(id).orElseThrow(() -> new NotFoundException());
-            taskRepo.deleteById(id);
-
-            return;
-        }
-
         TaskEntity task = taskRepo.findById(id).orElseThrow(() -> new NotFoundException());
         var ownerId = task.getUser().getId();
 
-        if (ownerId != user.getId()) {
+        if (ownerId != user.getId() && !user.getAdmin()) {
             throw new NotOwnerException();
         }
 
