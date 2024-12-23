@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,10 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.task_management.exceptions.NotFoundException;
+import com.task_management.exceptions.NotOwnerException;
 import com.task_management.modules.task.dtos.TaskCreateDTO;
-import com.task_management.modules.user.UserEntity;
-import com.task_management.modules.user.UserRepository;
-import com.task_management.security.JwtTokenService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -29,53 +28,40 @@ public class TaskController {
     @Autowired
     private TaskService taskService;
 
-    @Autowired
-    JwtTokenService jwtTokenService;
-
-    @Autowired
-    UserRepository userRepo;
-
     @PostMapping
     public ResponseEntity<TaskEntity> create(@Valid @RequestBody TaskCreateDTO payload, HttpServletRequest req) {
-        String token = req.getHeader("Authorization");
-
-        if(token.startsWith("Bearer ")){
-            token = token.substring(7);
-        }
-
-        String username = jwtTokenService.extractUsername(token);
-        UserEntity user = userRepo.findByUsername(username).get();
-        //Long userId = user.getId();
-
-        TaskEntity task = new TaskEntity();
-
-        task.setTitle(payload.getTitle());
-        task.setStatus(payload.getStatus());
-        task.setDescription(payload.getDescription());
-        task.setUser(user);
-
-        TaskEntity response = taskService.create(task);
+        TaskEntity response = taskService.create(payload, req);
 
         return ResponseEntity.status(201).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskEntity>> read(@RequestParam Optional<String> status) {
-        List<TaskEntity> response = taskService.read(status);
+    public ResponseEntity<List<TaskEntity>> read(HttpServletRequest req, @RequestParam Optional<String> status) {
+        List<TaskEntity> response = taskService.read(req, status);
 
         return ResponseEntity.status(200).body(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskEntity> readOne(@PathVariable Long id) throws NotFoundException {
-        TaskEntity response = taskService.readOne(id);
+    public ResponseEntity<TaskEntity> readOne(@PathVariable Long id, HttpServletRequest req)
+            throws NotFoundException, NotOwnerException {
+        TaskEntity response = taskService.readOne(id, req);
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<TaskEntity> update(@PathVariable Long id, HttpServletRequest req, @RequestBody TaskEntity payload)
+            throws NotFoundException, NotOwnerException {
+        TaskEntity response = taskService.update(id, req, payload);
 
         return ResponseEntity.status(200).body(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) throws NotFoundException {
-        taskService.delete(id);
+    public ResponseEntity<?> delete(@PathVariable Long id, HttpServletRequest req)
+            throws NotFoundException, NotOwnerException {
+        taskService.delete(id, req);
 
         return ResponseEntity.status(204).body(null);
     }

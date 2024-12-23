@@ -15,6 +15,7 @@ import com.task_management.exceptions.ExistingUserException;
 import com.task_management.modules.user.dtos.UserCreateDTO;
 import com.task_management.modules.user.dtos.UserReturnDTO;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -27,21 +28,14 @@ public class UserController {
     public ResponseEntity<UserReturnDTO> register(@Valid @RequestBody UserCreateDTO payload)
             throws ExistingUserException {
 
-        UserEntity user = new UserEntity();
-
-        user.setUsername(payload.getUsername());
-        user.setPassword(payload.getPassword());
-        user.setName(payload.getName());
-        user.setAdmin(payload.isAdmin());
-
-        UserReturnDTO response = userService.register(user);
+        UserReturnDTO response = userService.register(payload);
 
         return ResponseEntity.status(201).body(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<HashMap<String, String>> login(@RequestBody UserEntity payload) {
-        var response = userService.login(payload);
+        HashMap<String, String> response = userService.login(payload);
 
         return ResponseEntity.status(200).body(response);
     }
@@ -49,6 +43,13 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserReturnDTO>> read() {
         List<UserReturnDTO> response = userService.read();
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserReturnDTO> getProfile(HttpServletRequest req) {
+        UserReturnDTO response = userService.getProfile(req);
 
         return ResponseEntity.status(200).body(response);
     }
