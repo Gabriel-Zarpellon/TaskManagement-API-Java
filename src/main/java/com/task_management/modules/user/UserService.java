@@ -2,6 +2,7 @@ package com.task_management.modules.user;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -11,10 +12,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.task_management.exceptions.ExistingUserException;
 import com.task_management.modules.user.dtos.UserReturnDTO;
-import com.task_management.security.JwtTokenProvider;
+import com.task_management.security.JwtTokenService;
 
 @Service
 public class UserService {
@@ -25,7 +27,7 @@ public class UserService {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtTokenService jwtTokenService;
 
     @Autowired
     private PasswordEncoder encoder;
@@ -33,7 +35,7 @@ public class UserService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public UserReturnDTO register(UserEntity payload) throws ExistingUserException {
+    public UserReturnDTO register(@RequestBody UserEntity payload) throws ExistingUserException {
         Optional<UserEntity> existingUser = userRepo.findByUsername(payload.getUsername());
 
         if (existingUser.isPresent()) {
@@ -66,11 +68,17 @@ public class UserService {
                 payload.getPassword());
 
         Authentication authentication = authenticationManager.authenticate(authToken);
-        String token = jwtTokenProvider.createToken(authentication);
+        String token = jwtTokenService.createToken(authentication);
 
         HashMap<String, String> message = new HashMap<String, String>();
         message.put("token", token);
 
         return message;
+    }
+
+    public List<UserReturnDTO> read() {
+        List<UserEntity> users = userRepo.findAll();
+
+        return Arrays.asList(modelMapper.map(users, UserReturnDTO[].class));
     }
 }

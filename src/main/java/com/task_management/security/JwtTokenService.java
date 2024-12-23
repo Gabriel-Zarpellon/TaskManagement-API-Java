@@ -3,6 +3,7 @@ package com.task_management.security;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ import lombok.Data;
 
 @Component
 @Data
-public class JwtTokenProvider {
+public class JwtTokenService {
     private static final String AUTHORITIES_KEY = "roles";
 
     @Autowired
@@ -82,5 +83,18 @@ public class JwtTokenProvider {
         Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
 
         return true;
+    }
+
+    public Claims getAllClaimsFromToken(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
+        final Claims claims = getAllClaimsFromToken(token);
+        return claimsResolver.apply(claims);
+    }
+
+    public String extractUsername(String token){
+        return extractClaim(token, Claims::getSubject);
     }
 }

@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtTokenAuthenticationFilter extends GenericFilterBean {
     public static final String HEADER_PREFIX = "Bearer ";
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenService jwtTokenService;
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain)
@@ -26,8 +26,8 @@ public class JwtTokenAuthenticationFilter extends GenericFilterBean {
 
         String token = resolveToken((HttpServletRequest) req);
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            var auth = jwtTokenProvider.getAuthentication(token);
+        if (token != null && jwtTokenService.validateToken(token)) {
+            var auth = jwtTokenService.getAuthentication(token);
 
             if (auth != null && !(auth instanceof AnonymousAuthenticationToken)) {
                 var context = SecurityContextHolder.createEmptyContext();
