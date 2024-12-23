@@ -7,6 +7,7 @@ import org.springframework.context.MessageSource;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,6 +49,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotOwnerException.class)
     public ResponseEntity<?> handleNotOwnerException(NotOwnerException e) {
+        ErrorMessageDTO error = new ErrorMessageDTO();
+        error.setError(e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<?> handleBadCredentialsException(BadCredentialsException e) {
         ErrorMessageDTO error = new ErrorMessageDTO();
         error.setError(e.getMessage());
 
