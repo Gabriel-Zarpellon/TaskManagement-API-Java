@@ -83,7 +83,7 @@ Padrão de corpo
 {
 	"username": "example@mail.com",
 	"password": "123456",
-	"name": "Exemplo"
+	"name": "Example"
 }
 ```
 
@@ -93,7 +93,7 @@ Padrão de resposta (STATUS 201)
 {
 	"id": "103",
 	"username": "example@mail.com",
-	"name": "Exemplo",
+	"name": "Example",
 	"tasks": null,
 	"admin": false
 }
@@ -145,18 +145,77 @@ Padrão de resposta (STATUS 200)
 
 Possíveis Erros
 
+401 UNAUTHORIZED
 
+```json
+{
+	"error": "Invalid username/password supplied"
+}
+```
 
+### Leitura de usuários GET /api/users - apenas administrador
+
+Padrão de resposta (STATUS 200)
+
+```json
+[
+	{
+		"id": "52",
+		"username": "admin@mail.com",
+		"name": "Admin",
+		"tasks": [],
+		"admin": true
+	}
+]
+```
+
+### Leitura de usuário logado GET /api/users/profile
+
+Padrão de resposta (STATUS 200)
+
+```json
+{
+	"id": "2",
+	"username": "common2@mail.com",
+	"name": "Common",
+	"tasks": [
+		{
+			"id": 2,
+			"title": "Example title",
+			"status": "Pending",
+			"description": "Example description"
+		}
+	],
+	"admin": false
+}
+```
+
+## Rotas de tarefas
+
+Apenas acessíveis por usuários logados e autenticados através de TOKEN fornecido na realização do login.
+
+Possíveis erros de autenticação
+
+401 UNAUTHORIZED
+
+```json
+{
+	"error": "User isn't task owner."
+}
+```
+
+403 FORBIDDEN
 
 ### Registro de tarefa POST /api/tasks
+
 
 Padrão de corpo
 
 ```json
 {
-	"title": "Tarefa 1",
-	"status": "Pendente",
-	"description": "Descrição da tarefa"
+	"title": "Example title",
+	"status": "Pending",
+	"description": "Example description"
 }
 ```
 
@@ -164,10 +223,10 @@ Padrão de resposta (STATUS 201)
 
 ```json
 {
-	"id": "612d78fe-6848-43a0-a458-0452ef08b247",
-	"title": "Tarefa 1",
-	"status": "Pendente",
-	"description": "Descrição da tarefa"
+	"id": 102,
+	"title": "Example title",
+	"status": "Pending",
+	"description": "Example description"
 }
 ```
 
@@ -191,15 +250,19 @@ Possíveis erros
 
 ### Leitura de tarefas GET /api/tasks
 
+
+A leitura de todas as tarefas pode ser feita por usuários com autorização de administrador.
+Usuários comuns podem apenas listar as tarefas das quais são donos.
+
 Padrão de resposta (STATUS 200)
 
 ```json
 [
 	{
-		"id": "612d78fe-6848-43a0-a458-0452ef08b247",
-		"title": "Tarefa 1",
-		"status": "Pendente",
-		"description": "Descrição da tarefa"
+		"id": "1",
+		"title": "Exampel title",
+		"status": "Pending",
+		"description": "Example description"
 	}
 ]
 ```
@@ -208,7 +271,7 @@ URL Search Params
 
 | Parâmetro | Exemplo de uso            | Descrição                                                                         |
 | --------- | ------------------------- | --------------------------------------------------------------------------------- |
-|  status   | /api/tasks?status=exemplo | Forneça o "status" da tarefa para trazer somente tarefas com o status determinado |
+|  status   | /api/tasks?status=Pending | Forneça o "status" da tarefa para trazer somente tarefas com o status determinado |
 
 
 ### Leitura de tarefas por id GET /api/tasks/id
@@ -218,16 +281,33 @@ Padrão de resposta (STATUS 200)
 
 ```json
 {
-	"id": "612d78fe-6848-43a0-a458-0452ef08b247",
-	"title": "Tarefa 1",
-	"status": "Pendente",
-	"description": "Descrição da tarefa"
+	"id": "1",
+	"title": "Exaple title",
+	"status": "Pending",
+	"description": "Example description"
 }
 ```
 
 Possíveis erros 
 
 STATUS 404 NOT FOUND
+
+```json
+{
+	"error": "Task not found."
+}
+```
+
+### Atualização de tarefas por id PATCH /api/tasks/id
+
+
+Nesta rota, o título, descrição e statua são opcionais no corpo da requisição, de acordo com qual o usuário deseja atualizar.
+
+Padrão de resposta (STATUS 200)
+
+Possíveis erros
+
+404 NOT FOUND
 
 ```json
 {
