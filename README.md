@@ -81,9 +81,9 @@ Padrão de corpo
 
 ```json
 {
-	"username": "example@mail.com",
-	"password": "123456",
-	"name": "Example"
+  "username": "example@mail.com",
+  "password": "123456",
+  "name": "Example"
 }
 ```
 
@@ -91,11 +91,11 @@ Padrão de resposta (STATUS 201)
 
 ```json
 {
-	"id": "103",
-	"username": "example@mail.com",
-	"name": "Example",
-	"tasks": null,
-	"admin": false
+  "id": "103",
+  "username": "example@mail.com",
+  "name": "Example",
+  "tasks": null,
+  "admin": false
 }
 ```
 
@@ -113,15 +113,15 @@ Possíveis erros
 
 ```json
 [
-	{
-		"error": "username is required."
-	},
-	{
-		"error": "password is required."
-	},
-	{
-		"error": "name is required."
-	}
+  {
+    "error": "username is required."
+  },
+  {
+    "error": "password is required."
+  },
+  {
+    "error": "name is required."
+  }
 ]
 ```
 
@@ -131,15 +131,15 @@ Padrão de corpo
 
 ```json
 {
-	"username": "example@mail.com",
-	"password": "123456"
+  "username": "example@mail.com",
+  "password": "123456"
 }
 ```
 Padrão de resposta (STATUS 200)
 
 ```json
 {
-	"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjY5QG1haWwuY29tIiwicm9sZXMiOiJST0xFX0FETUlOIiwiaWF0IjoxNzM0NzEzODYxLCJ"
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjY5QG1haWwuY29tIiwicm9sZXMiOiJST0xFX0FETUlOIiwiaWF0IjoxNzM0NzEzODYxLCJ"
 }
 ```
 
@@ -149,7 +149,7 @@ Possíveis Erros
 
 ```json
 {
-	"error": "Invalid username/password supplied"
+  "error": "Invalid username/password supplied"
 }
 ```
 
@@ -159,13 +159,13 @@ Padrão de resposta (STATUS 200)
 
 ```json
 [
-	{
-		"id": "52",
-		"username": "admin@mail.com",
-		"name": "Admin",
-		"tasks": [],
-		"admin": true
-	}
+  {
+    "id": "52",
+    "username": "admin@mail.com",
+    "name": "Admin",
+    "tasks": [],
+    "admin": true
+  }
 ]
 ```
 
@@ -175,18 +175,18 @@ Padrão de resposta (STATUS 200)
 
 ```json
 {
-	"id": "2",
-	"username": "common2@mail.com",
-	"name": "Common",
-	"tasks": [
-		{
-			"id": 2,
-			"title": "Example title",
-			"status": "Pending",
-			"description": "Example description"
-		}
-	],
-	"admin": false
+  "id": "2",
+  "username": "common2@mail.com",
+  "name": "Common",
+  "tasks": [
+             {
+               "id": 2,
+               "title": "Example title",
+               "status": "Pending",
+               "description": "Example description"
+             }
+	   ],
+  "admin": false
 }
 ```
 
@@ -200,7 +200,7 @@ Possíveis erros de autenticação
 
 ```json
 {
-	"error": "User isn't task owner."
+  "error": "User isn't task owner."
 }
 ```
 
@@ -213,9 +213,9 @@ Padrão de corpo
 
 ```json
 {
-	"title": "Example title",
-	"status": "Pending",
-	"description": "Example description"
+  "title": "Example title",
+  "status": "Pending",
+  "description": "Example description"
 }
 ```
 
@@ -223,10 +223,10 @@ Padrão de resposta (STATUS 201)
 
 ```json
 {
-	"id": 102,
-	"title": "Example title",
-	"status": "Pending",
-	"description": "Example description"
+  "id": 102,
+  "title": "Example title",
+  "status": "Pending",
+  "description": "Example description"
 }
 ```
 
@@ -236,15 +236,15 @@ Possíveis erros
 
 ```json
 [
-	{
-		"error": "Title is required."
-	},
-	{
-		"error": "Status is required."
-	},
-	{
-		"error": "Description is required."
-	}
+  {
+    "error": "Title is required."
+  },
+  {
+    "error": "Status is required."
+  },
+  {
+    "error": "Description is required."
+  }
 ]
 ```
 
@@ -258,12 +258,12 @@ Padrão de resposta (STATUS 200)
 
 ```json
 [
-	{
-		"id": "1",
-		"title": "Exampel title",
-		"status": "Pending",
-		"description": "Example description"
-	}
+  {
+    "id": "1",
+    "title": "Exampel title",
+    "status": "Pending",
+    "description": "Example description"
+  }
 ]
 ```
 
@@ -281,10 +281,10 @@ Padrão de resposta (STATUS 200)
 
 ```json
 {
-	"id": "1",
-	"title": "Exaple title",
-	"status": "Pending",
-	"description": "Example description"
+  "id": "1",
+  "title": "Exaple title",
+  "status": "Pending",
+  "description": "Example description"
 }
 ```
 
@@ -294,7 +294,7 @@ STATUS 404 NOT FOUND
 
 ```json
 {
-	"error": "Task not found."
+  "error": "Task not found."
 }
 ```
 
@@ -311,7 +311,7 @@ Possíveis erros
 
 ```json
 {
-	"error": "Task not found."
+  "error": "Task not found."
 }
 ```
 
@@ -329,7 +329,7 @@ STATUS 404 NOT FOUND
 
 ```json
 {
-	"error": "Task not found."
+  "error": "Task not found."
 }
 ```
 
